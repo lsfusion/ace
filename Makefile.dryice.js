@@ -106,7 +106,7 @@ function ace() {
     copy.file(ACE_HOME + "/build_support/editor.html",  BUILD_DIR + "/editor.html");
     copy.file(ACE_HOME + "/LICENSE", BUILD_DIR + "/LICENSE");
     copy.file(ACE_HOME + "/ChangeLog.txt", BUILD_DIR + "/ChangeLog.txt");
-    
+
     console.log('# ace ---------');
     for (var i = 0; i < 4; i++) {
         buildAce({compress: i & 2, noconflict: i & 1, check: true});
@@ -117,12 +117,6 @@ function buildTypes() {
     var definitions = fs.readFileSync(ACE_HOME + '/ace.d.ts', 'utf8');
     var paths = fs.readdirSync(BUILD_DIR + '/src-noconflict');
     var moduleRef = '/// <reference path="./ace-modules.d.ts" />';
-
-    fs.readdirSync(BUILD_DIR + '/src-noconflict/snippets').forEach(function(path) {
-        paths.push("snippets/" + path);
-    });
-
-    var moduleNameRegex = /^(mode|theme|ext|keybinding)-|^snippets\//;
 
     var pathModules = [
         "declare module 'ace-builds/webpack-resolver';",
@@ -136,7 +130,7 @@ function buildTypes() {
 
     fs.writeFileSync(BUILD_DIR + '/ace.d.ts', moduleRef + '\n' + definitions);
     fs.writeFileSync(BUILD_DIR + '/ace-modules.d.ts', pathModules);
-    
+
     var loader = paths.map(function(path) {
         if (/\.js$/.test(path) && !/^ace\.js$/.test(path)) {
             var moduleName = path.split('.')[0].replace(/-/, "/");
@@ -146,7 +140,7 @@ function buildTypes() {
             return "ace.config.setModuleUrl('ace/" + moduleName + "', require('file-loader?esModule=false!./src-noconflict/" + path + "'))";
         }
     }).join('\n');
-    
+
     fs.writeFileSync(BUILD_DIR + '/webpack-resolver.js', loader, "utf8");
 }
 
@@ -161,18 +155,18 @@ function demo() {
 
     function changeComments(data) {
         return (data
-            .replace("doc/site/images/ace-logo.png", "demo/kitchen-sink/ace-logo.png")
-            .replace(/<!\-\-DEVEL[\d\D]*?DEVEL\-\->/g, "")
-            .replace(/PACKAGE\-\->|<!\-\-PACKAGE/g, "")
-            .replace(/\/\*DEVEL[\d\D]*?DEVEL\*\//g, "")
-            .replace(/PACKAGE\*\/|\/\*PACKAGE/g, "")
-            .replace("%version%", version)
-            .replace("%commit%", ref)
+                .replace("doc/site/images/ace-logo.png", "demo/kitchen-sink/ace-logo.png")
+                .replace(/<!\-\-DEVEL[\d\D]*?DEVEL\-\->/g, "")
+                .replace(/PACKAGE\-\->|<!\-\-PACKAGE/g, "")
+                .replace(/\/\*DEVEL[\d\D]*?DEVEL\*\//g, "")
+                .replace(/PACKAGE\*\/|\/\*PACKAGE/g, "")
+                .replace("%version%", version)
+                .replace("%commit%", ref)
         );
     }
-    
+
     copy(ACE_HOME +"/demo/kitchen-sink/docs/", BUILD_DIR + "/demo/kitchen-sink/docs/");
-    
+
     copy.file(ACE_HOME + "/demo/kitchen-sink/logo.png", BUILD_DIR + "/demo/kitchen-sink/logo.png");
     copy.file(ACE_HOME + "/demo/kitchen-sink/styles.css", BUILD_DIR + "/demo/kitchen-sink/styles.css");
     copy.file(ACE_HOME + "/kitchen-sink.html", BUILD_DIR + "/kitchen-sink.html", changeComments);
@@ -254,7 +248,7 @@ function buildAceModule(opts, callback) {
                 buildAceModuleInternal.apply(null, call);
         };
     }
-    
+
     buildAceModule.queue.push([opts, function(err, result) {
         callback && callback(err, result);
         buildAceModule.running = null;
@@ -273,7 +267,7 @@ function buildAceModuleInternal(opts, callback) {
     var key = opts.require + "|" + opts.projectType;
     if (cache && cache.configs && cache.configs[key])
         return write(null, cache.configs[key]);
-        
+
     var pathConfig = {
         paths: {
             ace: ACE_HOME + "/lib/ace",
@@ -282,7 +276,7 @@ function buildAceModuleInternal(opts, callback) {
         },
         root: ACE_HOME
     };
-        
+
     function write(err, result) {
         if (cache && key && !(cache.configs && cache.configs[key])) {
             cache.configs = cache.configs || Object.create(null);
@@ -290,30 +284,30 @@ function buildAceModuleInternal(opts, callback) {
             result.sources = result.sources.map(function(pkg) {
                 return {deps: pkg.deps};
             });
-        } 
-        
+        }
+
         if (!opts.outputFile)
             return callback(err, result);
-        
+
         var code = result.code;
         if (opts.compress) {
             if (!result.codeMin)
                 result.codeMin = compress(result.code);
             code = result.codeMin;
         }
-            
+
         var targetDir = getTargetDir(opts);
-        
+
         var to = /^([\\/]|\w:)/.test(opts.outputFile)
             ? opts.outputFile
             : path.join(opts.outputFolder || targetDir, opts.outputFile);
-    
+
         var filters = [];
 
         var ns = opts.ns || "ace";
         if (opts.filters)
             filters = filters.concat(opts.filters);
-    
+
         if (opts.noconflict)
             filters.push(namespace(ns));
         var projectType = opts.projectType;
@@ -321,19 +315,19 @@ function buildAceModuleInternal(opts, callback) {
             filters.push(exportAce(ns, opts.require[0],
                 opts.noconflict ? ns : "", projectType !== "main"));
         }
-        
+
         filters.push(normalizeLineEndings);
-        
+
         filters.forEach(function(f) { code = f(code); });
-        
+
         build.writeToFile({code: code}, {
             outputFolder: path.dirname(to),
             outputFile: path.basename(to)
         }, function() {});
-        
+
         callback && callback(err, result);
     }
-    
+
     build(opts.require, {
         cache: cache,
         quiet: opts.quiet,
@@ -354,7 +348,7 @@ function buildAceModuleInternal(opts, callback) {
 function buildCore(options, extra, callback) {
     options = extend(extra, options);
     options.additional = [{
-        id: "build_support/mini_require", 
+        id: "build_support/mini_require",
         order: -1000,
         literal: true
     }];
@@ -375,7 +369,6 @@ function buildSubmodule(options, extra, file, callback) {
 }
 
 function buildAce(options, callback) {
-    var snippetFiles = jsFileList("lib/ace/snippets");
     var modeNames = modeList();
 
     buildCore(options, {outputFile: "ace.js"}, addCb());
@@ -385,12 +378,6 @@ function buildAce(options, callback) {
             projectType: "mode",
             require: ["ace/mode/" + name]
         }, "mode-" + name, addCb());
-    });
-    // snippets
-    modeNames.forEach(function(name) {
-        buildSubmodule(options, {
-            require: ["ace/snippets/" + name]
-        }, "snippets/" + name, addCb());
     });
     // themes
     jsFileList("lib/ace/theme").forEach(function(name) {
@@ -439,7 +426,7 @@ function buildAce(options, callback) {
     }, "worker-base", addCb());
     // 
     function addCb() {
-        addCb.count = (addCb.count || 0) + 1; 
+        addCb.count = (addCb.count || 0) + 1;
         return done;
     }
     function done() {
@@ -451,10 +438,10 @@ function buildAce(options, callback) {
             buildTypes();
 
         extractCss(options, function() {
-            if (callback) 
+            if (callback)
                 return callback();
             console.log("Finished building " + getTargetDir(options));
-            
+
         });
     }
 }
@@ -469,9 +456,9 @@ function extractCss(options, callback) {
         var stat = fs.statSync(dir + "/" + filename);
         if (stat.isDirectory()) return;
         var value = fs.readFileSync(dir + "/" + filename, "utf8");
-            
+
         var cssImports = detectCssImports(value);
-        
+
         if (/theme-/.test(filename)) {
             var name = filename.replace(/^theme-|\.js$/g, "");
             var themeCss = "";
@@ -492,7 +479,7 @@ function extractCss(options, callback) {
             }
         }
     });
-    
+
     css = extractImages(css, "main", ".").replace(/^\s*/gm, "");
     build.writeToFile({code: css}, {
         outputFolder: BUILD_DIR + "/css",
@@ -501,17 +488,17 @@ function extractCss(options, callback) {
         saveImages();
         callback();
     });
-    
+
     function detectCssImports(code) {
         code = code.replace(/^\s*\/\/.+|^\s*\/\*[\s\S]*?\*\//gm, "");
 
         var stringRegex = /^("(?:[^"\\]|\\[\d\D])*"|'(?:[^'\\]|\\[\d\D])*'|)/;
         var importCssRegex = /\.importCssString\(\s*(?:([^,)"']+)|["'])/g;
-       
+
         var match;
         var cssImports;
         while (match = importCssRegex.exec(code)) {
-             if (match[1]) {
+            if (match[1]) {
                 var locationRegex = new RegExp("[^.]" + match[1] + /\s*=\s*['"]/.source);
                 match = locationRegex.exec(code);
                 if (!match) continue;
@@ -528,7 +515,7 @@ function extractCss(options, callback) {
         }
         return cssImports;
     }
-    
+
     function extractImages(css, name, directory) {
         var imageCounter = 0;
         return css.replace(
@@ -578,7 +565,7 @@ function getLoadedFileList(options, callback, result) {
 }
 
 function normalizeLineEndings(module) {
-    if (typeof module == "string") 
+    if (typeof module == "string")
         module = {source: module};
     return module.source = module.source.replace(/\r\n/g, "\n");
 }
@@ -605,7 +592,7 @@ function optimizeTextModules(sources) {
         }
         return pkg;
     });
-    
+
     function rewriteTextImports(text, deps) {
         return text.replace(/ require\(['"](?:ace|[.\/]+)\/requirejs\/text!(.*?)['"]\)/g, function(_, call) {
             if (call) {
@@ -616,7 +603,7 @@ function optimizeTextModules(sources) {
                         return true;
                     }
                 });
-    
+
                 call = textModules[dep];
                 if (call)
                     return " " + call;
@@ -674,7 +661,7 @@ function exportAce(ns, modules, requireBase, extModules) {
                 });
             })();
         };
-        
+
         if (extModules) {
             template = function() {
                 (function() {
@@ -686,18 +673,18 @@ function exportAce(ns, modules, requireBase, extModules) {
                 })();
             };
         }
-        
+
         text = text.replace(/function init\(packaged\) {/, "init(true);$&\n");
-        
+
         if (typeof modules == "string")
             modules = [modules];
-            
+
         return (text.replace(/;\s*$/, "") + ";" + template
-            .toString()
-            .replace(/MODULES/g, JSON.stringify(modules))
-            .replace(/REQUIRE_NS/g, requireBase)
-            .replace(/NS/g, ns)
-            .slice(13, -1)
+                .toString()
+                .replace(/MODULES/g, JSON.stringify(modules))
+                .replace(/REQUIRE_NS/g, requireBase)
+                .replace(/NS/g, ns)
+                .slice(13, -1)
         );
     };
 }
@@ -708,7 +695,7 @@ function updateModes() {
         var source = fs.readFileSync(filepath, "utf8");
         if (!/this.\$id\s*=\s*"/.test(source))
             source = source.replace(/\n([ \t]*)(\}\).call\(\w*Mode.prototype\))/, '\n$1    this.$id = "";\n$1$2');
-        
+
         source = source.replace(/(this.\$id\s*=\s*)"[^"]*"/,  '$1"ace/mode/' + m + '"');
         fs.writeFileSync(filepath, source, "utf8");
     });

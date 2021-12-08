@@ -9,10 +9,6 @@
     "author": "Fabian Jakobs <fabian@c9.io>",
     "main": "lib/ace",
     "typings": "ace.d.ts",
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/ajaxorg/ace.git"
-    },
     "devDependencies": {
         "asyncjs": "~0.0.12",
         "amd-loader": "~0.0.4",
@@ -22,19 +18,7 @@
     "mappings": {
         "ace": "."
     },
-    "licenses": [
-        {
-            "type": "BSD New",
-            "url": "http://opensource.org/licenses/BSD-3-Clause"
-        }
-    ],
     "directories": {
         "lib": "lib/ace"
-    },
-    "scripts": {
-        "start": "node static.js",
-        "test": "node lib/ace/test/all.js",
-        "lint": "eslint \"lib/ace/**/*.js\"",
-        "fix": "eslint --fix 'lib/ace/**/*.js'"
     }
 }
