@@ -14,7 +14,7 @@ how-to:
 - Add build files to your project
 - Use new mode: editor.getSession().setMode("ace/mode/semicolonlineend");
 
-
+For lsf antlr grammar put antlrLsfJSLogics.js into /lib/ace/mode/antlr
 Building Ace
 -----------
 ```bash
